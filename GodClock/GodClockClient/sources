@@ -1,0 +1,37 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+MAJORCOMP                = SPG
+MINORCOMP                = BILLING
+
+TARGETNAME               = godclockclient
+TARGETTYPE               = DYNLINK
+
+USE_NATIVE_EH            = 1
+USE_OLE_MC               = 1
+
+SOURCES                  = \
+                          godclock_stub.idl \
+                          cgcstub.cpp       \
+                          godclock_stub.cpp \
+                          godclock_stub.rc \
+
+
+PRECOMPILED_INCLUDE      = stdafx.h
+PRECOMPILED_CXX          = 1
+PRECOMPILED_OBJ          = stdafx.obj
+
+USE_MSVCRT               = 1
+USE_STL                  = 1
+
+INCLUDES                 = $(INCLUDES);           \
+
+TARGETLIBS               = $(TARGETLIBS) \
+
+
+C_DEFINES                = $(C_DEFINES) 
+
+NTTARGETFILES            = 
+
+MISCFILES                = $(MISCFILES)                         \
+

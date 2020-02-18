@@ -1,0 +1,25 @@
+HKCR
+{
+	GodClockStub.GodClockStub.1 = s 'CGCStub Class'
+	{
+		CLSID = s '{A76F4742-E169-410F-BD25-E562FC00628D}'
+	}
+	GodClockStub.GodClockStub = s 'CGCStub Class'
+	{
+		CLSID = s '{A76F4742-E169-410F-BD25-E562FC00628D}'
+		CurVer = s 'GodClockStub.GodClockStub.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {A76F4742-E169-410F-BD25-E562FC00628D} = s 'CGCStub Class'
+		{
+			ProgID = s 'GodClockStub.GodClockStub.1'
+			VersionIndependentProgID = s 'GodClockStub.GodClockStub'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Both'
+			}
+			'TypeLib' = s '{D8FF1D18-A2F8-41CB-A1C8-DD1221292E30}'
+		}
+	}
+}

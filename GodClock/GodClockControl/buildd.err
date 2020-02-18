@@ -1,0 +1,7 @@
+c:\users\mtd\source\godclockcontrol\. : error CS2005: Missing file specification for '/r:' command-line option
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System' could not be found
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System.Drawing' could not be found
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System.Collections' could not be found
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System.ComponentModel' could not be found
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System.Windows.Forms' could not be found
+c:\users\mtd\source\godclockcontrol\. : error CS0006: Metadata file 'System.Data' could not be found

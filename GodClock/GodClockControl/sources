@@ -1,0 +1,23 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+MAJORCOMP       = COREXT
+MINORCOMP       = TESTS
+
+TARGETNAME      = godclock_ui
+TARGETTYPE      = PROGRAM
+
+MANAGED_CODE    = 1
+UNSAFE_CODE     = 1
+
+SOURCES         =form1.cs                  \
+
+
+REFERENCES      =           \
+    System;                 \
+    System.Drawing;         \
+    System.Collections;     \
+    System.ComponentModel;  \
+    System.Windows.Forms;   \
+    System.Data;            \
+
