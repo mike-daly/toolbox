@@ -1,0 +1,19 @@
+BUILD: Examining c:\users\mtd\source\godclockcontrol directory for files to compile.
+Compiling c:\users\mtd\source\godclockcontrol directory ********************
+'nmake.exe /c BUILDMSG=Stop. -i NTTEST= UMTEST= NOLINK=1 386=1'
+
+Stop.
+Linking c:\users\mtd\source\godclockcontrol directory ********************
+'nmake.exe /c BUILDMSG=Stop. -i LINKONLY=1 NOPASS0=1 NTTEST= UMTEST= 386=1'
+	csc.exe -nologo /target:winexe /out:c:\b25\target\debug\i386\godclock_ui.exe  /warnaserror+ /unsafe  c:\b25\public\inc\bldver.cs  /debug:full /define:DEBUG /r:System /r:System.Drawing /r:System.Collections /r:System.ComponentModel /r:System.Windows.Forms /r:System.Data /r: form1.cs
+error CS2005: Missing file specification for '/r:' command-line option
+error CS0006: Metadata file 'System' could not be found
+error CS0006: Metadata file 'System.Drawing' could not be found
+error CS0006: Metadata file 'System.Collections' could not be found
+error CS0006: Metadata file 'System.ComponentModel' could not be found
+error CS0006: Metadata file 'System.Windows.Forms' could not be found
+error CS0006: Metadata file 'System.Data' could not be found
+[PatchBinplace] c:\b25\build\placefile has not changed since c:\b25\build\placefile.debug was written.
+Build_Status PostBuild Private - 
+
+Stop.

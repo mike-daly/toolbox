@@ -1,0 +1,48 @@
+// glodclock_stub.idl : IDL source for glodclock_stub.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (glodclock_stub.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(3EDF9FAA-FE8B-43C0-A462-1930299E98DA),
+	
+		helpstring("IGCStub Interface"),
+		pointer_default(unique)
+	]
+	interface IGCStub : IUnknown
+	{
+		HRESULT SetClock(
+        [in] long lLastSetHigh, 
+        [in] long lLastSetLow, 
+        [in] long lAdvanceHigh, 
+        [in] long lAdvanceLow, 
+        [in] double  fSlewRate );
+
+		HRESULT GetVClock(
+			[out]	long* plVNowHigh,
+			[out]	long* plVNowLow );
+	};
+
+[
+	uuid(D8FF1D18-A2F8-41CB-A1C8-DD1221292E30),
+	version(1.0),
+	helpstring("glodclock_stub 1.0 Type Library")
+]
+library GODCLOCKLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(A76F4742-E169-410F-BD25-E562FC00628D),
+		helpstring("CGCStub Class")
+	]
+	coclass CGCStub
+	{
+		[default] interface IGCStub;
+	};
+};

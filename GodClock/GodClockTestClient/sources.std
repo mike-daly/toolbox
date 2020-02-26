@@ -1,0 +1,31 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+MAJORCOMP                = SPG
+MINORCOMP                = BILLING
+
+TARGETNAME               = GodClockTest
+TARGETTYPE               = PROGRAM
+
+PRECOMPILED_INCLUDE      = stdafx.h
+PRECOMPILED_CXX          = 1
+PRECOMPILED_OBJ          = stdafx.obj
+
+INCLUDES                 = $(INCLUDES); \
+                           $(CORESDK_TRACER_INCLUDE); \
+			   $(INETROOT)\private\server\tools\devs\utl\header; \
+			   $(INETROOT)\private\server\libs\tax\taxlib; \
+
+C_DEFINES                = $(C_DEFINES)
+
+TARGETLIBS               = $(TARGETLIBS) \
+                           $(CORESDK_TRACER_LIBS) \
+                           $(TARGETPATH)\*\godclockclient.lib
+
+USE_NATIVE_EH            = 1
+USE_MSVCRT               = 1
+
+SOURCES                  = main.cpp \
+
+UMTYPE                   = console
+

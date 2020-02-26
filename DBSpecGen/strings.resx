@@ -1,0 +1,2860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            <xsd:complexType>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+            </xsd:complexType>
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="ResMimeType">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="Version">
+        <value>1.0.0.0</value>
+    </resheader>
+    <resheader name="Reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="Writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.3102.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="ginormousSqlQuery">
+        <value>
+
+
+
+
+
+SET NOCOUNT ON
+
+declare @version nvarchar(10)
+
+-- assume it's SQL Server 2000, unless 9.*.* appears in the @@version string.
+set @version='2000'
+if @@version like '%9.[0-9][0-9].[0-9][0-9][0-9]%' set @version='yukon'
+
+create table #fullname_and_id
+(
+	fullname	nvarchar(500)  	COLLATE Latin1_General_CI_AS null
+	,name		sysname  	COLLATE Latin1_General_CI_AS null
+	,schemaname	sysname  	COLLATE Latin1_General_CI_AS null
+	,id		int
+)
+
+create table #sp_helprotect 
+(
+	fullname	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,owner   	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,object  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantee  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantor  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,protecttype  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,[action]  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,[column]  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_helprotect_without_full_name 
+(
+	owner   	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,object  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantee  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantor  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,protecttype  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,[action]  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,[column]  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_table_privileges_without_full_name
+(
+	table_qualifier nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_owner  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_name  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantor  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantee  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,privilege  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,is_grantable  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_table_privileges
+(
+	fullname	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_qualifier nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_owner  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_name  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantor  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,grantee  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,privilege  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,is_grantable  	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_column_privileges_without_full_name
+(
+	table_qualifier  sysname  COLLATE Latin1_General_CI_AS null
+	,table_owner  	 sysname  COLLATE Latin1_General_CI_AS null
+	,table_name  	 sysname  COLLATE Latin1_General_CI_AS null
+	,column_name  	 sysname  COLLATE Latin1_General_CI_AS null
+	,grantor  	 sysname  COLLATE Latin1_General_CI_AS null
+	,grantee  	 sysname  COLLATE Latin1_General_CI_AS null
+	,privilege  	 sysname  COLLATE Latin1_General_CI_AS null
+	,is_grantable  	 sysname  COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_column_privileges
+(
+	fullname	 nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,table_qualifier sysname   	COLLATE Latin1_General_CI_AS null
+	,table_owner  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,table_name  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,column_name  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,grantor  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,grantee  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,privilege  	 sysname  	COLLATE Latin1_General_CI_AS null
+	,is_grantable  	 sysname  	COLLATE Latin1_General_CI_AS null
+)
+
+create table #dbproperties
+(
+	dbname     			nvarchar(500) COLLATE Latin1_General_CI_AS null  
+	,owner     			nvarchar(500) COLLATE Latin1_General_CI_AS null  
+	,created    			nvarchar(11)  COLLATE Latin1_General_CI_AS null   
+	,dbid     			smallint null
+	,dbsize    			nvarchar(13)  COLLATE Latin1_General_CI_AS null  
+	,cmptlevel    			tinyint
+	,Status    			nvarchar(500) COLLATE Latin1_General_CI_AS null 
+	,Updateability    		nvarchar(500) COLLATE Latin1_General_CI_AS null 
+	,UserAccess    			nvarchar(500) COLLATE Latin1_General_CI_AS null 
+	,Recovery    			nvarchar(500) COLLATE Latin1_General_CI_AS null 
+	,Version    			int null
+	,Collation    			nvarchar(500) COLLATE Latin1_General_CI_AS null 
+	,SQLSortOrder    		int null
+	,IsAutoClose    		bit null
+	,IsAutoShrink    		bit null
+	,IsInStandby    		bit null
+	,IsTornPageDetectionEnabled  	bit null
+	,IsAnsiNullDefault   		bit null
+	,IsAnsiNullsEnabled   		bit null
+	,IsAnsiPaddingEnabled   	bit null
+	,IsAnsiWarningsEnabled   	bit null
+	,IsArithmeticAbortEnabled  	bit null
+	,IsAutoCreateStatistics  	bit null
+	,IsAutoUpdateStatistics  	bit null
+	,IsCloseCursorsOnCommitEnabled	bit null
+	,IsFullTextEnabled   		bit null
+	,IsLocalCursorsDefault   	bit null
+	,IsNullConcat   	 	bit null
+	,IsNumericRoundAbortEnabled  	bit null
+	,IsQuotedIdentifiersEnabled  	bit null
+	,IsRecursiveTriggersEnabled  	bit null
+	,IsMergePublished   		bit null
+	,IsPublished    		bit null
+	,IsSubscribed    		bit null
+	,IsSyncWithBackup   		bit null
+)
+
+create table #sp_helpfile
+(
+	dbname   	nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,fileid  	int
+	,[filename]  	nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,[filegroup]  	nvarchar(100)   COLLATE Latin1_General_CI_AS null
+	,[size]  	nvarchar(100)   COLLATE Latin1_General_CI_AS null
+	,[maxsize]  	nvarchar(100)   COLLATE Latin1_General_CI_AS null
+	,growth  	nvarchar(100)   COLLATE Latin1_General_CI_AS null
+	,usage   	nvarchar(100)   COLLATE Latin1_General_CI_AS null
+)
+
+create table #comments
+(
+	parentfullname	nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,fullname	nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,parentname	sysname    	COLLATE Latin1_General_CI_AS null
+	,objtype  	sysname    	COLLATE Latin1_General_CI_AS null
+	,objname  	sysname    	COLLATE Latin1_General_CI_AS null
+	,name   	varchar(200)    COLLATE Latin1_General_CI_AS null
+	,value   	varchar(1000)   COLLATE Latin1_General_CI_AS null 
+)
+
+create table #tables -- also contains views...
+(
+	fullname  	nvarchar(1000)	COLLATE Latin1_General_CI_AS null
+	,schemaname  	sysname  	COLLATE Latin1_General_CI_AS null
+	,tablename  	sysname  	COLLATE Latin1_General_CI_AS null
+	,xtype   	varchar(2)    	COLLATE Latin1_General_CI_AS null
+	,created  	datetime 
+	,numrows  	int null
+	,dataspace  	int null
+	,indexspace  	int null
+)
+
+create table #sp_MStablespace
+(
+	Rows   		int
+	,DataSpaceUsed  int
+	,IndexSpaceUsed int
+)
+
+create table #indexes
+(
+	fullname  		sysname	 	 COLLATE Latin1_General_CI_AS null
+	,schemaname  		sysname  	 COLLATE Latin1_General_CI_AS null
+	,tablename   		sysname		 COLLATE Latin1_General_CI_AS null
+	,indexName   		sysname   	 COLLATE Latin1_General_CI_AS null
+	,indexDescription	nvarchar(1000)   COLLATE Latin1_General_CI_AS null
+	,indexKeys   		nvarchar(1000)   COLLATE Latin1_General_CI_AS null
+)
+
+create table #sp_helpindex
+(
+	index_name   		sysname  	COLLATE Latin1_General_CI_AS null
+	,index_description  	nvarchar(1000)  COLLATE Latin1_General_CI_AS null
+	,index_keys   		nvarchar(1000)  COLLATE Latin1_General_CI_AS null 
+)
+
+create table #code 
+(
+	fullname   	sysname   	COLLATE Latin1_General_CI_AS null
+	,name   	sysname    	COLLATE Latin1_General_CI_AS null
+	,[type]  	sysname    	COLLATE Latin1_General_CI_AS null
+	,colOrder  	int
+	,code   	varchar(7000)   COLLATE Latin1_General_CI_AS null 
+)
+
+create table #triggers
+(
+	fullname  	nvarchar(300)	COLLATE Latin1_General_CI_AS null
+	,schemaname  	sysname  	COLLATE Latin1_General_CI_AS null
+	,tablename  	sysname    	COLLATE Latin1_General_CI_AS null
+	,triggerName  	sysname    	COLLATE Latin1_General_CI_AS null
+	,isupdate  	bit
+	,isdelete  	bit
+	,isinsert  	bit
+	,isafter  	bit
+	,isinsteadof  	bit
+)
+
+create table #procedures
+(
+	fullname  	nvarchar(300)	COLLATE Latin1_General_CI_AS null
+	,schemaname  	sysname  	COLLATE Latin1_General_CI_AS null
+	,name   	sysname   	COLLATE Latin1_General_CI_AS null 
+	,xtype   	varchar(2)     	COLLATE Latin1_General_CI_AS null
+	,inout   	varchar(100)   	COLLATE Latin1_General_CI_AS null
+	,isResult  	varchar(100)   	COLLATE Latin1_General_CI_AS null
+	,paramName  	sysname   	COLLATE Latin1_General_CI_AS null
+	,paramType  	sysname   	COLLATE Latin1_General_CI_AS null
+	,paramLength  	int
+	,columnOrder  	int
+	,code   	text
+	,created  	datetime
+)
+
+create table #sp_columns
+(
+	fullname  		sysname		COLLATE Latin1_General_CI_AS null
+	,table_qualifier 	sysname   	COLLATE Latin1_General_CI_AS null
+	,table_owner   		sysname   	COLLATE Latin1_General_CI_AS null
+	,table_name   		sysname   	COLLATE Latin1_General_CI_AS null
+	,column_name   		sysname   	COLLATE Latin1_General_CI_AS null
+	,data_type   		int
+	,type_name   		nvarchar(100)  	null
+	,[precision]   		int
+	,length   		int
+	,scale    		int
+	,radix    		int
+	,nullable   		bit
+	,remarks   		varchar(254)  	null
+	,column_def   		varchar(2000)   null
+	,sql_data_type   	int
+	,sql_datetime_sub  	int
+	,char_octet_length  	int
+	,ordinal_position  	int
+	,is_nullable   		varchar(3)  	null
+ 	--YUKON_ONLY ,ss_type_catalog  	int 							
+ 	--YUKON_ONLY ,ss_type_schema  	int 			
+	,ss_data_type   	int
+)
+
+create table #sp_columns_without_full_name
+(
+	table_qualifier 	sysname   	COLLATE Latin1_General_CI_AS null
+	,table_owner   		sysname   	COLLATE Latin1_General_CI_AS null
+	,table_name   		sysname   	COLLATE Latin1_General_CI_AS null
+	,column_name   		sysname   	COLLATE Latin1_General_CI_AS null
+	,data_type   		int
+	,type_name   		nvarchar(100)  	null
+	,[precision]   		int
+	,length   		int
+	,scale    		int
+	,radix    		int
+	,nullable   		bit
+	,remarks   		varchar(254)  	null
+	,column_def   		varchar(2000)   null
+	,sql_data_type   	int
+	,sql_datetime_sub  	int
+	,char_octet_length  	int
+	,ordinal_position  	int
+	,is_nullable   		varchar(3)  	null
+ 	--YUKON_ONLY ,ss_type_catalog  	int 							
+ 	--YUKON_ONLY ,ss_type_schema  	int 			
+	,ss_data_type   	int
+)
+
+create table #sp_helpuser
+(
+	username  	nvarchar(500)   COLLATE Latin1_General_CI_AS null 
+	,groupname  	nvarchar(500)   COLLATE Latin1_General_CI_AS null 
+	,loginname  	nvarchar(500)   COLLATE Latin1_General_CI_AS null 
+	,defaultdb  	nvarchar(500)   COLLATE Latin1_General_CI_AS null 
+	,userid  	smallint null
+	,sid   		smallint null
+)
+
+create table #referencedBy
+(
+	fullname  	nvarchar(300)	COLLATE Latin1_General_CI_AS null
+	,schemaname  	sysname		COLLATE Latin1_General_CI_AS null
+	,tablename  	sysname		COLLATE Latin1_General_CI_AS null
+	,refByTable 	varchar(300)   	COLLATE Latin1_General_CI_AS null
+	,refByCol    	sysname   	COLLATE Latin1_General_CI_AS null
+)
+
+create table #constraints
+(
+	fullname  		nvarchar(300)	COLLATE Latin1_General_CI_AS null
+	,schemaname  		sysname		COLLATE Latin1_General_CI_AS null
+	,tablename   		varchar(300)    COLLATE Latin1_General_CI_AS null 
+	,colName   		varchar(300)    COLLATE Latin1_General_CI_AS null 
+	,cnst_id   		int NOT NULL  
+	,cnst_type   		nvarchar(146)   COLLATE Latin1_General_CI_AS null
+	,cnst_name   		nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,cnst_nonblank_name	nvarchar(500)   COLLATE Latin1_General_CI_AS null
+	,cnst_2type   		character(2)    COLLATE Latin1_General_CI_AS null 
+	,cnst_disabled   	bit NULL
+	,cnst_notrepl  		bit NULL
+	,cnst_delcasc   	bit NULL
+	,cnst_updcasc   	bit NULL
+	,cnst_keys   		nvarchar(1000)  COLLATE Latin1_General_CI_AS null 
+	,refTable   		varchar(300)    COLLATE Latin1_General_CI_AS null 
+	,refColumn   		varchar(300)    COLLATE Latin1_General_CI_AS null 
+	,code    		text     	COLLATE Latin1_General_CI_AS null
+)
+
+create table #dependencies 
+(
+	fullname  	nvarchar(300)	COLLATE Latin1_General_CI_AS null
+	,schemaname  	sysname   	COLLATE Latin1_General_CI_AS null
+	,objname  	varchar(300)    COLLATE Latin1_General_CI_AS null
+	,xtype   	varchar(2)      COLLATE Latin1_General_CI_AS null
+	,dependsOnObj  	varchar(300)    COLLATE Latin1_General_CI_AS null
+	,objDependsOn  	varchar(300)    COLLATE Latin1_General_CI_AS null
+	,refXtype  	varchar(2)      COLLATE Latin1_General_CI_AS null
+)
+
+create table #userTypes
+(
+	UserDatatypeName  	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,owner    		nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,basetypename   	nvarchar(500)  COLLATE Latin1_General_CI_AS null
+	,defaultname   		varchar(256)   COLLATE Latin1_General_CI_AS null
+	,rulename   		varchar(256)   COLLATE Latin1_General_CI_AS null
+	,tid    		int
+	,length   		int
+	,nullable   		bit
+	,dt_prec   		int
+	,dt_scale   		int
+	,dt_flags   		int
+	,allowidentity   	bit
+	,variablelength  	bit
+	,maxlen   		int
+	,defaultOwner   	varchar(256)   COLLATE Latin1_General_CI_AS null                                                                                                                    
+	,ruleOwner   		varchar(256)   COLLATE Latin1_General_CI_AS null                                                                                                                        
+	,collation   		varchar(100)   COLLATE Latin1_General_CI_AS null 
+)
+
+create table #sp_configure
+(
+	name  nvarchar(500)   COLLATE Latin1_General_CI_AS null 
+	,minimum  int 
+	,maximum  int
+	,config_value  int 
+	,run_value  int 
+)
+
+insert into #fullname_and_id 
+select f.fullname, f.name, f.schemaname, sysobjects.id from sysobjects
+join 
+(
+	select  
+		TABLE_SCHEMA + '.' + TABLE_NAME fullname
+		,TABLE_NAME name
+		,TABLE_SCHEMA schemaname
+		,object_id(TABLE_SCHEMA + '.' + TABLE_NAME) id
+	from INFORMATION_SCHEMA.TABLES
+	
+	union
+	select 
+		ROUTINE_SCHEMA + '.' + ROUTINE_NAME fullname
+		,ROUTINE_NAME name
+		,ROUTINE_SCHEMA schemaname
+		,object_id(ROUTINE_SCHEMA + '.' + ROUTINE_NAME) id
+	from INFORMATION_SCHEMA.ROUTINES
+	
+	union
+	select 
+		TABLE_SCHEMA + '.' + TABLE_NAME fullname
+		,TABLE_NAME name
+		,TABLE_SCHEMA schemaname
+		,object_id(TABLE_SCHEMA + '.' + TABLE_NAME) id
+	from INFORMATION_SCHEMA.VIEWS
+	
+	union
+	select 
+		CONSTRAINT_SCHEMA + '.' + CONSTRAINT_NAME fullname
+		,CONSTRAINT_NAME name
+		,CONSTRAINT_SCHEMA schemaname
+		,object_id(CONSTRAINT_SCHEMA + '.' + CONSTRAINT_NAME) id 
+	from INFORMATION_SCHEMA.CHECK_CONSTRAINTS
+	
+	union
+	select 
+		CONSTRAINT_SCHEMA + '.' + CONSTRAINT_NAME fullname
+		,CONSTRAINT_NAME name
+		,CONSTRAINT_SCHEMA schemaname
+		,object_id(CONSTRAINT_SCHEMA + '.' + CONSTRAINT_NAME) id 
+	from INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+) f
+On f.id = sysobjects.id
+
+
+
+-- put the triggers in there as well...
+insert into #fullname_and_id 
+select
+	cast(f.schemaname + '.' + o.name as sysname)
+	,o.name
+	,f.schemaname
+	,o.id id 
+from sysobjects o, #fullname_and_id f where 
+	o.xtype='TR' 
+	and o.parent_obj = f.id
+	
+
+
+--
+-- get server properties
+--
+print 'fetching server properties with sp_configure...'
+insert into #sp_configure exec sp_configure
+
+
+--
+-- get permissions info - 
+-- have to make sure there is something in sysprotects,
+-- otherwise sp_helprotect throws an error in yukon.  
+-- very lame.  why don't they just return an empty record set?
+-- 
+if exists(select top 1 * from sysprotects)
+begin
+	insert into #sp_helprotect_without_full_name exec sp_helprotect
+	insert into #sp_helprotect select null, * from #sp_helprotect_without_full_name
+	update #sp_helprotect set fullname=cast(owner + '.' + object as nvarchar(300))
+	update #sp_helprotect set [column]=null where [column]='.'
+	update #sp_helprotect set [column]='all' where [column]='(All)'
+	update #sp_helprotect set [column]='all + new' where [column]='(All+New)'
+	update #sp_helprotect set [column]='new' where [column]='(New)'
+	update #sp_helprotect set [object]=null where [object]='.'
+	update #sp_helprotect set [owner]=null where [owner]='.'
+	update #sp_helprotect set [fullname]=null where [fullname]='...'
+end
+
+
+--
+-- get info on the db
+--
+
+declare @low nvarchar(11)
+select @low = convert(varchar(11),low) from master.dbo.spt_values where type = N'E' and number = 1
+
+insert into #dbproperties (dbname, owner, created, dbid, cmptlevel)
+select name, suser_sname(sid), crdate, dbid, cmptlevel 
+from master.dbo.sysdatabases where (name = db_name())
+
+declare @exec_stmt nvarchar(625)
+select @exec_stmt = 'update #dbproperties set dbsize = (select str(convert(dec(15),sum(size))* ' + @low + '/ 1048576,10,2)+ N'' MB'' from ' + quotename(db_name(), N'[') + N'.dbo.sysfiles)'
+execute (@exec_stmt)
+
+
+-- These properties always available
+update #dbproperties set 
+Status = convert(nvarchar(500),DatabasePropertyEx(db_name(),'Status')), 
+Updateability = convert(nvarchar(500),DatabasePropertyEx(db_name(),'Updateability')), 
+UserAccess = convert(nvarchar(500),DatabasePropertyEx(db_name(),'UserAccess')), 
+Recovery = convert(nvarchar(500),DatabasePropertyEx(db_name(),'Recovery')), 
+Version = convert(int,DatabasePropertyEx(db_name(),'Version')),
+IsAutoClose = convert(bit, DatabasePropertyEx(db_name(),'IsAutoClose')),
+IsAutoShrink = convert(bit, DatabasePropertyEx(db_name(),'IsAutoShrink')),
+IsInStandby = convert(bit, DatabasePropertyEx(db_name(),'IsInStandby')),
+IsTornPageDetectionEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsTornPageDetectionEnabled')),
+IsAnsiNullDefault = convert(bit, DatabasePropertyEx(db_name(),'IsAnsiNullDefault')),
+IsAnsiNullsEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsAnsiNullsEnabled')),
+IsAnsiPaddingEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsAnsiPaddingEnabled')),
+IsAnsiWarningsEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsAnsiWarningsEnabled')),
+IsArithmeticAbortEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsArithmeticAbortEnabled')),
+IsAutoCreateStatistics = convert(bit, DatabasePropertyEx(db_name(),'IsAutoCreateStatistics')),
+IsAutoUpdateStatistics = convert(bit, DatabasePropertyEx(db_name(),'IsAutoUpdateStatistics')),
+IsCloseCursorsOnCommitEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsCloseCursorsOnCommitEnabled')),
+IsFullTextEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsFullTextEnabled')),
+IsLocalCursorsDefault = convert(bit, DatabasePropertyEx(db_name(),'IsLocalCursorsDefault')),
+IsNullConcat = convert(bit, DatabasePropertyEx(db_name(),'IsNullConcat')),
+IsNumericRoundAbortEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsNumericRoundAbortEnabled')),
+IsQuotedIdentifiersEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsQuotedIdentifiersEnabled')),
+IsRecursiveTriggersEnabled = convert(bit, DatabasePropertyEx(db_name(),'IsRecursiveTriggersEnabled')),
+IsPublished = convert(bit, DatabasePropertyEx(db_name(),'IsPublished')),
+IsSubscribed = convert(bit, DatabasePropertyEx(db_name(),'IsSubscribed')),
+IsSyncWithBackup = convert(bit, DatabasePropertyEx(db_name(),'IsSyncWithBackup'))
+where dbname = db_name()
+
+-- These props only available if db is not shut down
+IF DatabaseProperty(db_name(), 'IsShutdown') = 0
+BEGIN
+	update #dbproperties set 
+	Collation = convert(nvarchar(500),DatabasePropertyEx(db_name(),'Collation')),
+	SQLSortOrder = convert(int,DatabasePropertyEx(db_name(),'SQLSortOrder'))
+	where dbname = db_name()
+END
+
+
+
+-- get the files associated with this db...
+insert into #sp_helpfile exec sp_helpfile
+
+
+--
+-- get all the user tables
+--
+insert into #tables 
+(
+	fullname  --nvarchar(1000)  null
+	,schemaname  --nvarchar(500)  null
+	,tablename -- nvarchar(500)  null
+	,xtype   --varchar(2)    null
+	,created  --datetime 
+	,numrows  --int null
+	,dataspace  --int null
+	,indexspace  --int null
+)
+select 
+	cast(TABLE_SCHEMA + '.' + name as nvarchar(1000))
+	, CAST(TABLE_SCHEMA as nvarchar(300))
+	, cast(name as nvarchar(300))
+	, xtype
+	, crdate
+	, null
+	, null
+	, null 
+from sysobjects join INFORMATION_SCHEMA.TABLES AT ON AT.TABLE_NAME = name where 
+	xtype in ('U','V') and 
+	name!='dtproperties' and
+	OBJECTPROPERTY(id, N'IsMSShipped') = 0
+order by 1
+
+
+-- get info about the users of this db...
+-- we can't use sp_helpuser because it returns two record sets in rare circumstances.
+-- this is very lame.  you should be able to pass a mask to specify what results are wanted,
+-- rather than it randomly returning 1 or 2 record sets depending on what types of users
+-- happen to be present on the machine...
+insert into #sp_helpuser SELECT
+	usu.name
+      	,case when (usg.uid is null) then 'public' else usg.name end
+	,lo.loginname
+	,lo.dbname
+	,usu.uid
+	,usu.sid
+from
+	sysusers usu left outer join
+	(sysmembers mem inner join sysusers usg on mem.groupuid = usg.uid) on usu.uid = mem.memberuid
+        left outer join master.dbo.syslogins lo on usu.sid = lo.sid
+where
+	(usu.islogin = 1 and usu.isaliased = 0 and usu.hasdbaccess = 1) and (usg.issqlrole = 1 or usg.uid is null)
+
+-- there might be some interesting info we could get from these sprocs...
+-- exec sp_helplogins
+-- exec sp_helpntgroup
+
+
+-- comments for entire db 
+insert into #comments 
+select null, null, null, objtype, objname, name, cast(value as varchar(1000)) 
+from ::fn_listextendedproperty(NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+
+
+--
+-- now get data for each table and view...
+--
+declare @objectname 	sysname
+declare @fullname 	nvarchar(300)
+declare @reffullname 	nvarchar(300)
+declare @switchfullname nvarchar(300)
+declare @schemaname 	sysname
+declare @objectid 	int
+declare @xtype 		varchar(2)
+
+declare tableCursor cursor local for select fullname, schemaname, tablename, xtype from #tables order by schemaname, tablename
+open tableCursor
+fetch next from tableCursor into @fullname, @schemaname, @objectname, @xtype
+WHILE @@FETCH_STATUS = 0
+begin
+
+-- don't get stuff for tables from linked servers...
+if(@objectname not like '%.%')
+begin
+
+	print 'getting stuff for: ' + @fullname
+	
+	--
+	-- don't use the full object name unless we are on yukon.
+	-- why?  because stupid yukon procedures need the full name,
+	-- and old 2000 procedures don't work if you pass the full name!
+	-- so, on 2000, @switchfullname will contain just the name ('authors'), 
+	-- and on yukon @switchfullname will contain the full name ('dbo.authors')
+	--
+	if @version='2000'
+	begin
+		set @switchfullname = @objectname
+	end
+	
+
+	insert into #sp_column_privileges_without_full_name exec sp_column_privileges @switchfullname
+	insert into #sp_table_privileges_without_full_name exec sp_table_privileges @switchfullname
+	insert into #sp_column_privileges select @fullname, * from #sp_column_privileges_without_full_name
+	insert into #sp_table_privileges select @fullname, * from #sp_table_privileges_without_full_name
+	delete from #sp_column_privileges_without_full_name
+	delete from #sp_table_privileges_without_full_name
+	
+	SELECT @objectid = object_id(@fullname)
+	
+	declare @numrows int
+	if @xtype='U'
+	begin 
+		insert into #sp_MStablespace exec sp_MStablespace @fullname 
+		declare @dataspace int, @indexspace int
+		select @numrows=Rows, @dataspace=DataSpaceUsed, @indexspace=IndexSpaceUsed from #sp_MStablespace
+		update #tables set numrows=@numrows, dataspace=@dataspace, indexspace=@indexspace where tablename=@objectname
+		delete from #sp_MStablespace
+
+		--
+		-- get comments for this table...
+		--
+		insert into #comments 
+		select null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		from ::fn_listextendedproperty (NULL, 'user', @schemaname, 'table', @objectname, default, default)
+		UNION
+		select null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		from ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, default, default)
+		
+		--
+		-- get comments about each column...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', @objectname, 'column', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, 'column', default) 
+		--
+		-- get comments about each index...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', @objectname, 'index', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, 'index', default)
+		
+		--
+		-- get comments about each constraint...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', @objectname, 'constraint', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, 'constraint', default)
+		--
+		-- get comments about each default...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', @objectname, 'default', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, 'default', default) 
+		--
+		-- get comments about each trigger...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', @objectname, 'trigger', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'table', @objectname, 'trigger', default)
+	end
+	else if(@xtype='V')
+	begin
+		--
+		-- get comments for this view...
+		--
+		insert into #comments 
+		select null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		from ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, default, default)
+		UNION
+		select null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		from ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, default, default)
+		
+		--
+		-- get comments about each column...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, 'column', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, 'column', default)
+		--
+		-- get comments about each index...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, 'index', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, 'index', default)
+		
+		--
+		-- get comments about each constraint...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, 'constraint', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, 'constraint', default) 
+		--
+		-- get comments about each default...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, 'default', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, 'default', default) 
+		--
+		-- get comments about each trigger...
+		--
+		insert into #comments
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'view', @objectname, 'trigger', default)
+		UNION
+		SELECT  @fullname, null, @objectname, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'schema', @schemaname, 'view', @objectname, 'trigger', default)
+	end
+
+	--
+	-- get objects that depend on this table
+	--
+	insert into #dependencies
+	select distinct 
+		@fullname,
+		@schemaname,
+		@objectname,
+		@xtype,
+		f.fullname,
+		null,
+		o.xtype
+	from sysobjects o, sysdepends d, #fullname_and_id f where 
+		o.id = d.id
+		and d.depid = @objectid
+		and o.id = f.id
+		and deptype &lt; 2
+	
+	--
+	-- get indexes for this table...   exec sp_helpindex @objname='dbo.authors'
+	--
+	insert into #sp_helpindex exec sp_helpindex @objname=@fullname
+	
+	insert into #indexes select 
+		@fullname, 
+		@schemaname,
+		@objectname,	
+		index_name, 
+		index_description, 
+		index_keys 
+	from #sp_helpindex
+	
+	delete from #sp_helpindex
+	
+	
+	--
+	-- get info about each column for this table...    
+	--
+	insert into #sp_columns_without_full_name exec sp_columns @table_name=@objectname 
+	insert into #sp_columns select @fullname, * from #sp_columns_without_full_name
+	delete from #sp_columns_without_full_name
+	
+	
+	--
+	-- get the triggers...
+	--
+	insert into #triggers select distinct
+		@fullname,
+		@schemaname,
+		@objectname,
+		s.name,
+		ObjectProperty( s.id, 'ExecIsUpdateTrigger'),
+		ObjectProperty( s.id, 'ExecIsDeleteTrigger'),
+		ObjectProperty( s.id, 'ExecIsInsertTrigger'),
+		ObjectProperty( s.id, 'ExecIsAfterTrigger'),
+		ObjectProperty( s.id, 'ExecIsInsteadOfTrigger')
+	from sysobjects s where 
+		s.parent_obj = object_id(@fullname) and 
+		s.type = 'TR' and
+		OBJECTPROPERTY(s.id, N'IsMSShipped') = 0
+	
+	--
+	-- these are used in fetching the constraints for tables.
+	--
+	declare @objid  	int    		-- the object id of the table
+	declare @cnstdes    	nvarchar(4000)  -- string to build up index desc
+	declare @cnstname 	nvarchar(500)   -- name of const. currently under consideration
+	declare @i  		int
+	declare @cnstid 	int
+	declare @cnsttype 	character(2)
+	declare @keys  		nvarchar(2126)  -- Length (16*max_identifierLength)+(15*2)+(16*3)
+	declare @dbname 	nvarchar(500)
+	declare @indid  	smallint  	-- the index id of an index
+	declare @groupid 	smallint  	-- the filegroup id of an index
+	declare @indname  	nvarchar(500)
+	declare @groupname  	nvarchar(500)
+	declare @status  	int
+	declare @thiskey  	nvarchar(131)
+
+	--
+	-- get info about the constraints for this table...
+	--
+	select @objid = object_id(@fullname)
+	
+	declare constraintCursor cursor local static for 
+		select id, xtype, name from sysobjects where parent_obj = @objid and xtype in ('C ','PK','UQ','F ', 'D ')
+	for read only
+	
+	open constraintCursor
+	fetch constraintCursor into @cnstid ,@cnsttype ,@cnstname
+	while @@fetch_status >= 0
+	begin
+		if @cnsttype in ('PK','UQ')
+		begin
+			-- get indid and index description
+			select 
+				@indid = indid, 
+				@cnstdes = case when @cnsttype = 'PK' then 'PRIMARY KEY' else 'UNIQUE' end + 
+					case when (status &amp; 16)=16 then ' (clustered)' else ' (non-clustered)' end
+			from sysindexes where
+				name = object_name(@cnstid) and 
+				id = @objid
+			
+			select @keys = index_col(@fullname, @indid, 1), @i = 2
+			
+			if (indexkey_property(@objid, @indid, 1, 'isdescending') = 1) select @keys = @keys  + '(-)'
+			
+			select @thiskey = index_col(@fullname, @indid, @i)
+
+			if ((@thiskey is not null) and (indexkey_property(@objid, @indid, @i, 'isdescending') = 1))
+				select @thiskey = @thiskey + '(-)'
+		
+			while (@thiskey is not null)
+			begin
+				select @keys = @keys + ', ' + @thiskey, @i = @i + 1
+				select @thiskey = index_col(@fullname, @indid, @i)
+				if ((@thiskey is not null) and (indexkey_property(@objid, @indid, @i, 'isdescending') = 1))
+				select @thiskey = @thiskey + '(-)'
+			end
+		
+			-- ADD TO TABLE
+			insert into #constraints
+			(fullname, schemaname, tablename, colName, cnst_id, cnst_type, cnst_name, cnst_nonblank_name, cnst_keys, cnst_2type)
+			values  
+			(@fullname, @schemaname, @objectname, @keys, @cnstid, @cnstdes, @cnstname, @cnstname, @keys, @cnsttype)
+		end
+		else if @cnsttype = 'F '
+		begin
+			-- OBTAIN TWO TABLE IDs
+			declare @fkeyid int, @rkeyid int
+			select @fkeyid = fkeyid, @rkeyid = rkeyid from sysreferences where constid = @cnstid
+			
+			-- USE CURSOR OVER FOREIGN KEY COLUMNS TO BUILD COLUMN LISTS
+			-- (NOTE: @keys HAS THE FKEY AND @cnstdes HAS THE RKEY COLUMN LIST)
+			declare ms_crs_fkey cursor local for 
+			select fkey, rkey from sysforeignkeys where constid = @cnstid
+			open ms_crs_fkey
+			declare @fkeycol smallint, @rkeycol smallint
+			fetch ms_crs_fkey into @fkeycol, @rkeycol
+			select @keys = col_name(@fkeyid, @fkeycol), @cnstdes = col_name(@rkeyid, @rkeycol)
+			fetch ms_crs_fkey into @fkeycol, @rkeycol
+			while @@fetch_status >= 0
+			begin
+			select @keys = @keys + ', ' + col_name(@fkeyid, @fkeycol),
+			@cnstdes = @cnstdes + ', ' + col_name(@rkeyid, @rkeycol)
+			fetch ms_crs_fkey into @fkeycol, @rkeycol
+			end
+			deallocate ms_crs_fkey
+
+			select @reffullname = fullname from #fullname_and_id f where f.id = @rkeyid 
+			
+			-- ADD ROWS FOR BOTH SIDES OF FOREIGN KEY
+			insert into #constraints
+			(
+				fullname,
+				schemaname,
+				cnst_id, 
+				cnst_type,
+				cnst_name,
+				cnst_nonblank_name,
+				cnst_keys, 
+				cnst_disabled,
+				cnst_notrepl, 
+				cnst_delcasc, 
+				cnst_updcasc, 
+				cnst_2type, 
+				tablename, 
+				refColumn,
+				refTable, 
+				colName
+			)
+			values
+			(
+				@fullname,
+				@schemaname,
+				@cnstid, 
+				'FOREIGN KEY', 
+				@cnstname, 
+				@cnstname,
+				@keys, 
+				ObjectProperty(@cnstid, 'CnstIsDisabled'),
+				ObjectProperty(@cnstid, 'CnstIsNotRepl'),
+				ObjectProperty(@cnstid, 'CnstIsDeleteCascade'),
+				ObjectProperty(@cnstid, 'CnstIsUpdateCascade'),
+				@cnsttype,
+				@objectname,  
+				@cnstdes, 
+				@reffullname, 
+				@keys
+			)
+		end
+		else if @cnsttype = 'C '
+		begin
+			select @i = 1
+			select @cnstdes = text from syscomments where id = @cnstid and colid = @i
+			while @cnstdes is not null
+			begin
+			if @i=1
+				insert into #constraints
+				(
+					fullname, 
+					schemaname, 
+					tablename, 
+					colName, 
+					cnst_id, 
+					cnst_type,
+					cnst_name,
+					cnst_nonblank_name,
+					cnst_keys, 
+					cnst_disabled, 
+					cnst_notrepl, 
+					cnst_2type
+				)
+				select 
+					@fullname,
+					@schemaname,
+					@objectname, 
+					case when info = 0 then NULL else col_name(@objid ,info) end,
+					@cnstid,
+					case when info = 0 then 'CHECK Table Level ' else 'CHECK' end,
+					@cnstname,
+					@cnstname,
+					@cnstdes,
+					ObjectProperty(@cnstid, 'CnstIsDisabled'),
+					ObjectProperty(@cnstid, 'CnstIsNotRepl'),
+					@cnsttype
+				from sysobjects where id = @cnstid
+			else
+				insert into #constraints 
+				(
+					fullname,
+					schemaname,
+					tablename, 
+					cnst_id,
+					cnst_type,
+					cnst_name,
+					cnst_nonblank_name,
+					cnst_keys, 
+					cnst_2type
+				)
+				select 
+					@fullname,
+					@schemaname,
+					@objectname, 
+					@cnstid,
+					' ',
+					' ',
+					@cnstname,
+					substring(@cnstdes,1,2000), 
+					@cnsttype
+			
+			select @cnstdes = null
+			select @i = @i + 1
+			select @cnstdes = text from syscomments where id = @cnstid and colid = @i
+		end
+	end
+
+	fetch constraintCursor into @cnstid ,@cnsttype ,@cnstname
+	end  
+	deallocate constraintCursor
+
+end
+
+fetch next from tableCursor into @fullname, @schemaname, @objectname, @xtype
+end
+CLOSE tableCursor
+DEALLOCATE tableCursor
+
+
+--
+-- get info about user defined types
+--
+insert into #userTypes exec sp_MShelptype @typename=null, @flags='uddt'
+
+--
+-- get comments about each user defined type...
+--
+insert into #comments
+SELECT  null, null, null, objtype, objname, name, cast(value as varchar(1000)) 
+FROM ::fn_listextendedproperty (NULL, 'type', 'dbo', null, null, null, null)
+
+
+--
+-- get the procedures that have no params...
+--
+insert into #procedures
+select
+	f.fullname,
+	f.schemaname,
+	f.name, 
+	s.xtype, 
+	null, 
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+	s.crdate
+from sysobjects s, #fullname_and_id f where
+	s.id = f.id
+	and s.name not in (select SPECIFIC_NAME from INFORMATION_SCHEMA.PARAMETERS)
+	and s.xtype in ('P','FN','IF','TF')
+	and OBJECTPROPERTY(s.id, N'IsMSShipped') = 0
+
+--
+-- get info about sprocs, user defined functions that have params...
+--
+insert into #procedures
+select 
+	f.fullname,
+	f.schemaname,
+	f.name, 
+	s.xtype,
+	p.PARAMETER_MODE,
+	p.IS_RESULT,
+	p.PARAMETER_NAME,
+	p.DATA_TYPE,
+	p.CHARACTER_MAXIMUM_LENGTH,
+	p.ORDINAL_POSITION,
+	null,
+	s.crdate
+from INFORMATION_SCHEMA.PARAMETERS p, sysobjects s, #fullname_and_id f where 
+	s.id = f.id
+	and p.SPECIFIC_NAME=s.name
+	and s.xtype in ('P','FN','IF','TF')
+	and OBJECTPROPERTY(s.id, N'IsMSShipped') = 0
+
+
+--
+-- loop over procedures to get dependencies...
+-- 
+declare procCursor cursor local for select distinct name, fullname, xtype from #procedures order by name
+open procCursor
+fetch next from procCursor into @objectname, @fullname, @xtype
+WHILE @@FETCH_STATUS = 0
+begin
+	insert into #dependencies
+	select distinct 
+		@fullname,
+		null,
+		@objectname,
+		@xtype,
+		f.fullname,
+		null,
+		o.xtype
+	from sysobjects o, sysdepends d, #fullname_and_id f where 
+		o.id = d.id
+		and d.depid = object_id(@fullname)
+		and o.id = f.id
+		and deptype &lt; 2
+
+	if(@xtype in ('FN','IF','TF'))
+	begin
+		--
+		-- get comments about each udf...
+		--
+		insert into #comments
+		SELECT  null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'function', @objectname, null, null)
+	end
+	else
+	begin
+		--
+		-- get comments about each sproc...
+		--
+		insert into #comments
+		SELECT  null, @fullname, null, objtype, objname, name, cast(value as varchar(1000)) 
+		FROM ::fn_listextendedproperty (NULL, 'user', 'dbo', 'procedure', @objectname, null, null)
+	end
+	
+	fetch next from procCursor into @objectname, @fullname, @xtype
+end
+CLOSE procCursor
+DEALLOCATE procCursor
+
+-- here we make sure we check for all the xml-unfriendly chars that might be in the code.
+-- wouldn't have to do this if SQL Server FOR XML EXPLICIT clauses escaped them properly.
+-- if the code contains any of these strange chars, don't get the code, because it breaks xml.
+insert into #code
+select
+	f.fullname,
+	f.name, 
+	s.xtype,
+	c.colid,
+	case when c.encrypted=0 and c.text not like '%['
+		+cast(0x00 as nchar(1))
+		+cast(0x01 as nchar(1))
+		+cast(0x02 as nchar(1))
+		+cast(0x03 as nchar(1))
+		+cast(0x04 as nchar(1))
+		+cast(0x05 as nchar(1))
+		+cast(0x06 as nchar(1))
+		+cast(0x07 as nchar(1))
+		+cast(0x08 as nchar(1))
+		+cast(0x0b as nchar(1))
+		+cast(0x0c as nchar(1))
+		+cast(0x0e as nchar(1))
+		+cast(0x0f as nchar(1))
+		+cast(0x10 as nchar(1))
+		+cast(0x11 as nchar(1))
+		+cast(0x12 as nchar(1))
+		+cast(0x13 as nchar(1))
+		+cast(0x14 as nchar(1))
+		+cast(0x15 as nchar(1))
+		+cast(0x16 as nchar(1))
+		+cast(0x17 as nchar(1))
+		+cast(0x18 as nchar(1))
+		+cast(0x19 as nchar(1))
+		+cast(0x1a as nchar(1))
+		+cast(0x1b as nchar(1))
+		+cast(0x1c as nchar(1))
+		+cast(0x1d as nchar(1))
+		+cast(0x1e as nchar(1))
+		+cast(0x1f as nchar(1))
+		+']%' then c.text 
+		else 'Could not retrieve code.  It may be encrypted. ' end
+from sysobjects s, syscomments c, #fullname_and_id f where 
+	s.id = f.id	
+	and s.xtype in ('P','FN','TR','C','V','IF','TF') 
+	and s.id = c.id 
+	and OBJECTPROPERTY(s.id, N'IsMSShipped') = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--
+-- build xml...
+--
+select 
+1 as tag,
+null as parent,
+db_name() as [database!1!name],
+REPLACE(@@SERVERNAME, '\', '.') as [database!1!server],
+LTRIM(RTRIM(REPLACE(dbsize,'MB',''))) as [database!1!sizeMB],
+owner as [database!1!owner],
+convert(nvarchar(40), created, 100) as [database!1!created],
+Status as [database!1!status],
+cmptlevel as [database!1!compatLevel],
+convert(nvarchar(40), getdate(), 100) as [database!1!currentTime], 
+Updateability as [database!1!updateability],
+UserAccess as [database!1!userAccess],
+Recovery as [database!1!recovery],
+Version as [database!1!version],
+Collation as [database!1!collation],
+SQLSortOrder as [database!1!sqlSortOrder],
+IsAutoClose as [database!1!isAutoClose],
+IsAutoShrink as [database!1!isAutoShrink],
+IsInStandby as [database!1!isInStandby],
+IsTornPageDetectionEnabled as [database!1!isTornPageDetectionEnabled],
+IsAnsiNullDefault as [database!1!isAnsiNullDefault],
+IsAnsiNullsEnabled as [database!1!isAnsiNullsEnabled],
+IsAnsiPaddingEnabled as [database!1!isAnsiPaddingEnabled],
+IsAnsiWarningsEnabled as [database!1!isAnsiWarningsEnabled],
+IsArithmeticAbortEnabled as [database!1!isArithmeticAbortEnabled],
+IsAutoCreateStatistics as [database!1!isAutoCreateStatistics],
+IsAutoUpdateStatistics as [database!1!isAutoUpdateStatistics],
+IsCloseCursorsOnCommitEnabled as [database!1!isCloseCursorsOnCommitEnabled],
+IsFullTextEnabled as [database!1!isFullTextEnabled],
+IsLocalCursorsDefault as [database!1!isLocalCursorsDefault],
+IsNullConcat as [database!1!isNullConcat],
+IsNumericRoundAbortEnabled as [database!1!isNumericRoundAbortEnabled],
+IsQuotedIdentifiersEnabled as [database!1!isQuotedIdentifiersEnabled],
+IsRecursiveTriggersEnabled as [database!1!isRecursiveTriggersEnabled],
+IsMergePublished as [database!1!isMergePublished],
+IsPublished as [database!1!isPublished],
+IsSubscribed as [database!1!isSubscribed],
+IsSyncWithBackup as [database!1!isSyncWithBackup],
+
+null as [table!2!name],
+null as [table!2!xtype],
+null as [table!2!created],
+null as [table!2!rowcount],
+null as [table!2!datasizeKB],
+null as [table!2!indexsizeKB],
+
+null as [column!3!name],
+null as [column!3!type],
+null as [column!3!length],
+null as [column!3!bytes],
+null as [column!3!scale],
+null as [column!3!radix],
+null as [column!3!allowNull],
+null as [column!3!defaultValue],
+null as [column!3!ordinal],
+
+null as [index!11!name],
+null as [index!11!description],
+null as [index!11!keys],
+
+null as [refer!4!tablename],
+null as [constraint!5!colName],
+null as [constraint!5!type], 
+null as [constraint!5!name],
+null as [constraint!5!isPrimaryKey],
+null as [constraint!5!isUnique],
+null as [constraint!5!isForeignKey], 
+null as [constraint!5!refTable],
+null as [constraint!5!refColumn],
+null as [constraint!5!hasCheck],
+
+null as [procedure!6!name],
+null as [procedure!6!xtype],
+null as [procedure!6!created],
+
+null as [param!7!name],
+null as [param!7!inOut],
+null as [param!7!isResult],
+null as [param!7!datatype],
+null as [param!7!length],
+null as [param!7!ordinal],
+
+null as [trigger!8!name],
+null as [trigger!8!tablename],
+null as [trigger!8!isUpdate],
+null as [trigger!8!isDelete],
+null as [trigger!8!isInsert],
+null as [trigger!8!isAfter],
+null as [trigger!8!isInsteadOf],
+
+null as [code!9!name],
+null as [code!9!type],
+null as [code!9!order],
+null as [code!9!],
+
+null as [dependency!10!objName],
+null as [dependency!10!xtype],
+null as [dependency!10!dependsOnObj],
+null as [dependency!10!objDependsOn],
+null as [dependency!10!refXtype]
+
+,null as [userDefinedType!12!name]
+,null as [userDefinedType!12!baseType]
+,null as [userDefinedType!12!length]
+,null as [userDefinedType!12!allowNull] 
+,null as [userDefinedType!12!default] 
+,null as [userDefinedType!12!rule] 
+
+,null as [extendedProperty!13!parentObj]
+,null as [extendedProperty!13!objType]
+,null as [extendedProperty!13!objName]
+,null as [extendedProperty!13!propName]
+,null as [extendedProperty!13!value]
+
+,null as [file!14!dbname]
+,null as [file!14!filename]
+,null as [file!14!filegroup]
+,null as [file!14!sizeKB]
+,null as [file!14!maxsize]
+,null as [file!14!growth]
+,null as [file!14!usage]
+
+,null as [privilege!15!grantor]
+,null as [privilege!15!grantee]
+,null as [privilege!15!privilege]
+,null as [privilege!15!isGrantable]
+
+,null as [columnPrivilege!16!columnName]
+,null as [columnPrivilege!16!grantor]
+,null as [columnPrivilege!16!grantee]
+,null as [columnPrivilege!16!privilege]
+,null as [columnPrivilege!16!isGrantable]
+
+,null as [user!17!username]
+,null as [user!17!group]
+
+,null as [permission!18!owner]
+,null as [permission!18!object]
+,null as [permission!18!grantee]
+,null as [permission!18!grantor]
+,null as [permission!18!protecttype]
+,null as [permission!18!action]
+,null as [permission!18!column]
+
+,null as [serverProperty!19!name]
+,null as [serverProperty!19!runValue]
+,null as [serverProperty!19!configValue]
+
+from #dbproperties where dbname=db_name()
+
+union all
+
+select 
+2 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
+t.fullname,
+RTRIM(t.xtype),
+convert(nvarchar(40), t.created, 100),
+t.numrows,
+RTRIM(REPLACE(t.dataspace,'KB','')),
+RTRIM(REPLACE(t.indexspace,'KB','')),
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #tables t 
+where (t.xtype = 'U' and t.numrows is not null) or t.xtype = 'V'
+
+union all 
+select
+3 as tag,
+2 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+c.fullname,
+null,
+null,
+null,
+null,
+null,
+c.column_name,
+c.type_name,
+case c.[precision] when 1073741823 then null else c.[precision] end,
+case c.length when 2147483646 then null else c.length end,
+c.scale,
+c.radix,
+c.nullable,
+c.column_def,
+c.ordinal_position,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null, 
+null,
+null, 
+null,
+null,
+null,
+null, 
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #sp_columns c 
+
+
+union all 
+select
+11 as tag,
+2 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+fullname,
+null,
+null,
+null,
+null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,
+indexName,
+indexDescription,
+indexKeys,
+null,
+null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null, 
+null,
+null, 
+null,
+null,
+null,
+null, 
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #indexes 
+
+union all select
+4 as tag,
+2 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+r.fullname,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+r.refByTable,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null, 
+null,
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #referencedBy r
+
+union all select
+5 as tag,
+2 as parent,
+db_name(),@@SERVERNAME,
+null,null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+c.fullname,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+c.colName, 
+c.cnst_type,
+cast(c.schemaname + '.' + c.cnst_nonblank_name as sysname),
+case when c.cnst_2type='PK' then 1 else NULL end,
+case when c.cnst_2type='UQ' then 1 else NULL end,
+case when c.cnst_2type='F ' then 1 else NULL end,
+case when c.cnst_2type='F ' then c.refTable else NULL end,
+case when c.cnst_2type='F ' then c.refColumn else NULL end,
+case when c.cnst_2type='C ' then 1 else NULL end,
+null, 
+null,
+null,
+null, 
+null,null,
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #constraints c
+
+union all select distinct
+6 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+p.fullname,
+RTRIM(p.xtype),
+convert(nvarchar(40), p.created, 100),
+--p.created,
+null,
+null,
+null,
+null,
+null,
+null, 
+null,
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #procedures p
+
+union all select distinct
+7 as tag,
+6 as parent,
+db_name(),
+@@SERVERNAME,null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+p.fullname,
+p.xtype,
+convert(nvarchar(40), p.created, 100),
+--p.created,
+p.paramName,
+p.inout,
+p.isResult,
+p.paramType,
+p.paramLength, 
+p.columnOrder,
+null,
+null,
+null, 
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #procedures p where p.paramName is not null 
+
+union all select 
+8 as tag,
+2 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+t.fullname,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+cast(t.schemaname + '.' + t.triggername as sysname),
+t.tablename,
+t.isupdate, 
+t.isdelete,
+t.isinsert,
+t.isafter,
+t.isinsteadof,
+null,
+null, null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #triggers t
+
+
+union all select
+9 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+c.fullname,
+RTRIM(c.type),
+c.colOrder,
+c.code,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #code c
+
+union all select
+10 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,
+null,null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+fullname,
+RTRIM(xtype),
+dependsOnObj,
+objDependsOn,
+RTRIM(refXtype),
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #dependencies
+
+union all select
+12 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,
+null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+UserDatatypeName,
+basetypename,
+maxlen,
+nullable,
+defaultOwner,
+ruleOwner,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #userTypes
+
+union all select
+13 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+parentfullname,
+objtype,
+fullname,
+name,
+value,null,null,null,null,null,null,null
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #comments
+
+union all select
+14 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+RTRIM(dbname),
+RTRIM(filename),
+filegroup,
+RTRIM(REPLACE(size,'KB','')),
+maxsize,
+growth,
+usage
+,null,null,null,null,null,null,null,null,null
+,null,null
+,null,null,null,null,null,null,null
+,null,null,null
+from #sp_helpfile
+
+union all select
+17 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,
+username,
+groupname
+,null,null,null,null,null,null,null
+,null,null,null
+from #sp_helpuser
+
+
+union all select
+18 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,
+null,null,
+owner,
+fullname,
+grantee,
+grantor,
+LOWER(RTRIM(protecttype)),
+LOWER([action]),
+[column]
+,null,null,null
+from #sp_helprotect where object is null or fullname in 
+(
+	select fullname from #fullname_and_id
+) 
+
+union all select
+19 as tag,
+1 as parent,
+db_name(),@@SERVERNAME,null,
+null,
+null,null,
+null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,null,null,
+null,null,null,null,null,null,null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,
+null,null,null,null,null,null,null,null,null,
+null,null,
+null,
+null,
+null,
+null,
+null,
+null,
+null
+,name
+,run_value
+,config_value
+from #sp_configure
+
+order by 
+[database!1!owner] desc,
+[table!2!name], 
+[table!2!xtype] desc,
+[column!3!ordinal],
+[refer!4!tablename],
+[constraint!5!colName], 
+[procedure!6!name], 
+[param!7!ordinal],
+[code!9!name],
+[code!9!type],
+[code!9!order],
+[dependency!10!objName]
+
+for xml explicit
+
+/*
+select * from #dependencies
+select * from #constraints
+select * from #tables
+select * from #referencedBy
+select * from #procedures
+select * from #triggers
+select * from #code
+select * from #indexes
+select * from #userTypes
+select * from #comments
+select * from #dbproperties
+select * from #sp_helpfile
+select * from #sp_columns
+select * from #sp_column_privileges
+select * from #sp_table_privileges
+select * from #sp_helpuser
+select * from #sp_helprotect
+select * from #sp_configure
+select * from #fullname_and_id
+*/
+
+drop table #constraints
+drop table #tables
+drop table #referencedBy
+drop table #procedures
+drop table #triggers
+drop table #code
+drop table #dependencies
+drop table #indexes
+drop table #userTypes
+drop table #comments
+drop table #dbproperties
+drop table #sp_helpfile
+drop table #sp_helpindex
+drop table #sp_columns
+drop table #sp_columns_without_full_name
+drop table #sp_MStablespace
+drop table #sp_column_privileges
+drop table #sp_table_privileges
+drop table #sp_column_privileges_without_full_name
+drop table #sp_table_privileges_without_full_name
+drop table #sp_helpuser
+drop table #sp_helprotect
+drop table #sp_helprotect_without_full_name
+drop table #sp_configure
+drop table #fullname_and_id
+
+	</value>
+    </data>
+    <data name="getCompatLevel">
+
+select 
+	1 as tag, 
+	null as parent, 
+	name as [database!1!name], 
+	cmptlevel as [database!1!compatlevel] 
+from master.dbo.sysdatabases 
+where (name = db_name()) for xml explicit
+	
+	</data>
+    <data name="allObjects">
+        <value>
+	
+select 
+
+	1 as tag,
+	null as parent,
+	db_name() as [database!1!name],
+	@@SERVERNAME as [database!1!server],
+	null as [object!2!xtype],
+	null as [object!2!name]
+	
+union all select 
+	
+	2 as tag, 
+	1 as parent, 
+	null, 
+	null, 
+	RTRIM(o.xtype), 
+	f.fullname 
+	
+from sysobjects o
+join 
+(
+	select  
+		TABLE_SCHEMA + '.' + TABLE_NAME fullname
+		,TABLE_NAME name
+		,TABLE_SCHEMA schemaname
+		,object_id(TABLE_SCHEMA + '.' + TABLE_NAME) id
+	from INFORMATION_SCHEMA.TABLES
+	
+	union
+	select 
+		ROUTINE_SCHEMA + '.' + ROUTINE_NAME fullname
+		,ROUTINE_NAME name
+		,ROUTINE_SCHEMA schemaname
+		,object_id(ROUTINE_SCHEMA + '.' + ROUTINE_NAME) id
+	from INFORMATION_SCHEMA.ROUTINES
+	
+	union
+	select 
+		TABLE_SCHEMA + '.' + TABLE_NAME fullname
+		,TABLE_NAME name
+		,TABLE_SCHEMA schemaname
+		,object_id(TABLE_SCHEMA + '.' + TABLE_NAME) id
+	from INFORMATION_SCHEMA.VIEWS
+) f
+on 
+	f.id = o.id
+	and OBJECTPROPERTY(o.id, N'IsMSShipped') = 0
+
+order by tag, [object!2!xtype], [object!2!name] 
+for xml explicit
+	
+	</value>
+    </data>
+</root>

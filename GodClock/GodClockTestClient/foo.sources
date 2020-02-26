@@ -1,0 +1,26 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+MAJORCOMP                = SPG
+MINORCOMP                = BILLING
+
+TARGETNAME               = getsystime
+TARGETTYPE               = PROGRAM
+
+#PRECOMPILED_INCLUDE      = stdafx.h
+#PRECOMPILED_CXX          = 1
+#PRECOMPILED_OBJ          = stdafx.obj
+
+INCLUDES                 = $(INCLUDES); \
+
+C_DEFINES                = $(C_DEFINES)
+
+TARGETLIBS               = $(TARGETLIBS) \
+
+USE_NATIVE_EH            = 1
+USE_MSVCRT               = 1
+
+SOURCES                  = foo.cpp \
+
+UMTYPE                   = console
+
