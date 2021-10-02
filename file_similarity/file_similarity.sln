@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "file_similarity", "file_similarity\file_similarity.csproj", "{0D4F7C10-65AC-4E72-803F-8DDFB8D9F8FD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D4F7C10-65AC-4E72-803F-8DDFB8D9F8FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D4F7C10-65AC-4E72-803F-8DDFB8D9F8FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D4F7C10-65AC-4E72-803F-8DDFB8D9F8FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D4F7C10-65AC-4E72-803F-8DDFB8D9F8FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B073789F-E0D7-4C2D-9295-2D95E2FF3698}
+	EndGlobalSection
+EndGlobal
