@@ -5,8 +5,38 @@ using System.Security.Cryptography;
 
 namespace file_info_to_db
 {
+    abstract class DisplayEngine
+    {
+
+    }
+
+    class ExtensionToEngineMap
+    {
+        public String fileExtension;
+        public DisplayEngine displayEngine;
+
+        public ExtensionToEngineMap(String extension, DisplayEngine de = null)
+        {
+            this.fileExtension = extension;
+            this.displayEngine = de;
+        }
+    }
+
     class Program
     {
+//        TODO -- use a list<string, delegate> or other map, not home grown
+        ExtensionToEngineMap[] eeMap = new ExtensionToEngineMap[]
+        {
+            new ExtensionToEngineMap("gif"),
+            new ExtensionToEngineMap("tiff"),
+            new ExtensionToEngineMap("tif"),
+            new ExtensionToEngineMap("jpeg"),
+            new ExtensionToEngineMap("jpg"),
+        };
+
+
+
+
         /// <summary>
         /// output a csv header for the file descriptions
         /// </summary>
