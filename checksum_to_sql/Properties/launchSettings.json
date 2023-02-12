@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "checksum_to_sql": {
+      "commandName": "Project",
+      "commandLineArgs": "-i"
+    }
+  }
+}
