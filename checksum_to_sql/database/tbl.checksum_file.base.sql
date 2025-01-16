@@ -13,7 +13,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[checksum_file](
+CREATE TABLE [dbo].[checksum_file_base](
 	[sha1_checksum] [char](40) NOT NULL,
 	[file_path] [nvarchar](512) NOT NULL
 ) ON [PRIMARY]
