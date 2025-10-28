@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "get_diskdrive_info", "get_diskdrive_info.csproj", "{F425B41C-F980-408A-93EE-8395BD34EB4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F425B41C-F980-408A-93EE-8395BD34EB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F425B41C-F980-408A-93EE-8395BD34EB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F425B41C-F980-408A-93EE-8395BD34EB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F425B41C-F980-408A-93EE-8395BD34EB4F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED639A90-E2D4-4D42-9BB4-079D96B0108B}
+	EndGlobalSection
+EndGlobal
