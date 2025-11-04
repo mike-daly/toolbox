@@ -1,0 +1,11 @@
+CREATE TABLE volume (
+    id BINARY(16) NOT NULL PRIMARY KEY,
+    string1 VARCHAR(255),
+    string2 VARCHAR(255),
+    string3 VARCHAR(255),
+    string4 VARCHAR(255),
+    string5 VARCHAR(255),
+    string6 VARCHAR(255),
+    string7 VARCHAR(255),
+    large_number BIGINT
+);

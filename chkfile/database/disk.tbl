@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS disk;
+
+CREATE TABLE disk (
+    id              INT AUTO_INCREMENT UNIQUE PRIMARY KEY,
+
+    DeviceID        VARCHAR(255),
+    PNPDeviceID     VARCHAR(255),
+    Model           VARCHAR(64),
+    InterfaceType   VARCHAR(32),
+    MediaType       VARCHAR(64),
+    Size            BIGINT,
+    Partitions      INT,
+    SerialNumber    VARCHAR(255),
+    Status          VARCHAR(64),
+
+    Created         TIMESTAMP   NOT NULL DEFAUULT CURRENT_TIMESTAMP,
+    Updated         TIMESTAMP   NOT NULL DEFAUULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+);
