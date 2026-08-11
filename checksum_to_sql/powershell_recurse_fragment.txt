@@ -1,0 +1,9 @@
+﻿get-childitem . -recurse | 
+foreach-object {
+    get-filehash $_.FullName -Algorithm SHA1 -PipelineVariable $Variable:FOO
+    $Variable:FOO.Hash  $Variable:FOO.Path
+
+
+
+} 
+#| Out-File \temp\sha1.out

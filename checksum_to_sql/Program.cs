@@ -24,6 +24,8 @@ switch (arguments[1])
     case "-h":
         DoHelpAndExit("");
         break;
+    case "-create":
+        database.CreateNewDb(args[0], args[1]);
     default:
         DoHelpAndExit($"unexpected commandline argument {args[1]}");
         break;
@@ -88,6 +90,7 @@ void DoHelpAndExit(string message)
 @"
 -i  insert rows containing SHA1 and full path
 -a  append to existing rows (sha1 and filename)
+-create <connectionstring> <schemafilename>
 
 -h  help (this)
 ");

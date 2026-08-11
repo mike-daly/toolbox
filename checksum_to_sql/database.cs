@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 /// <summary>
 /// container to encapsulate database connection and operations.
 /// </summary>
@@ -24,6 +25,47 @@ class database
         this.upsertRowCommand = this.myConnection.CreateCommand();
         this.upsertRowCommand.CommandText = $"INSERT INTO dbo.checksum_file (sha1_checksum, file_path) VALUES (@sha1_checksum, @file_path)";
 
+    }
+
+    public static void CreateNewDb(string connectionString, string schema)
+    {
+        try
+        {
+            string script = File.ReadAllText(schema);
+
+            // split script on GO command
+            System.Collections.Generic.IEnumerable<string> commandStrings = Regex.Split(script, @"^\s*GO\s*$",
+                                     RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                foreach (string commandString in commandStrings)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        using (var command = new SqlCommand(commandString, connection))
+                        {
+                            try
+                            {
+                                command.ExecuteNonQuery();
+                            }
+                            catch (SqlException ex)
+                            {
+                                string spError = commandString.Length > 100 ? commandString.Substring(0, 100) + " ...\n..." : commandString;
+                                Console.WriteLine(string.Format("Please check the SqlServer script.\nFile: {0} \nLine: {1} \nError: {2} \nSQL Command: \n{3}", schema, ex.LineNumber, ex.Message, spError));
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            return;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return;
+        }
     }
 
     public void Close()
